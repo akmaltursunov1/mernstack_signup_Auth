@@ -1,4 +1,3 @@
-const express = require("express");
 const userModel = require("../model/userModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -70,10 +69,10 @@ const loginController = async (req, res) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
-    console.log(token);
+    // console.log(token);
     res.cookie("token", token, {
       httpOnly: true,
-      expires: new Date(Date.now() + 1000 * 100),
+      expires: new Date(Date.now() + 1000 * 90),
     });
 
     res.status(200).send({
@@ -93,7 +92,7 @@ const loginController = async (req, res) => {
 };
 const alluser = async (req, res) => {
   try {
-    const users = await userModel.find({});
+    const users = await (await userModel.find({})).reverse();
     if (!users) {
       return res.status(404).send({
         success: false,
@@ -115,67 +114,36 @@ const alluser = async (req, res) => {
     });
   }
 };
-const refreshToken = async (req, res) => {
-  const refreshT = req.cookies.token;
-  if (!refreshT) {
-    return res.status(401).send({
+
+const refReshToken = (req, res, next) => {
+  const prevToken = req.cookies.token;
+  // console.log("prevtoken eski token" + "              " + prevToken);
+  if (!prevToken) {
+    return res.status(400).send({
       success: false,
-      message: "refresh token yoq",
+      message: "Couldn't find token",
     });
   }
-  try {
-    const decoded = jwt.verify(refreshT, process.env.JWT_SECRET);
-    const accessToken = jwt.sign(
-      { id: decoded.user.id },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "1d",
-      }
-    );
-    res.cookie(user.id, accessToken, {
-      expires: new Date(Date.now() + 1000 * 30),
+  jwt.verify(prevToken, process.env.JWT_SECRET, (err, user) => {
+    if (err) {
+      console.log(err);
+      return res.status(403).send({
+        message: "Authentication faild",
+      });
+    }
+    res.clearCookie(` ${user.id} `);
+    req.cookies[`${user.id}`] = "";
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
+    // console.log("yangi token token" + "           " + token);
+    res.cookie(user.id, token, {
+      expires: new Date(Date.now() + 1000 * 9),
       httpOnly: true,
     });
-    res.status(200).send({ accessToken });
-  } catch (error) {
-    console.log(error);
-    res.status(403).send({
-      success: false,
-      message: "xato refresh token",
-      error,
-    });
-  }
+    req.id = user.id;
+    next();
+  });
 };
-// const refreshToken = (req, res, next) => {
-//   const cookies = req.headers.cookie;
-//   const prevToken = cookies.split("=")[1];
-//   if (!prevToken) {
-//     return res.status(400).send({
-//       success: false,
-//       message: "Couldn't find token",
-//     });
-//   }
-//   jwt.verify(prevToken, process.env.JWT_SECRET, (err, user) => {
-//     if (err) {
-//       console.log(err);
-//       return res.status(403).send({
-//         message: "Authentication faild",
-//       });
-//     }
-//     res.clearCookie(` ${user.id} `);
-//     req.cookies[`${user.id}`] = "";
-//     token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-//       expiresIn: "1d",
-//     });
-//     res.cookie(String(user.id), token, {
-//       path: "/",
-//       expires: new Date(Date.now() + 1000 * 30),
-//       httpOnly: true,
-//       sameSite: "lax",
-//     });
-//     req.id = user.id;
-//     next();
-//   });
-// };
 
-module.exports = { registerUser, loginController, alluser, refreshToken };
+module.exports = { registerUser, loginController, alluser, refReshToken };

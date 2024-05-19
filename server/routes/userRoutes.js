@@ -3,7 +3,8 @@ const {
   registerUser,
   loginController,
   alluser,
-  refreshToken,
+
+  refReshToken,
 } = require("../controller/userController");
 const { isAuthenticated } = require("../middlware/auth");
 const router = express.Router();
@@ -11,5 +12,5 @@ const router = express.Router();
 router.post("/register", registerUser);
 router.post("/login", loginController);
 router.get("/users", isAuthenticated, alluser);
-router.post("/refresh", isAuthenticated, refreshToken, alluser);
+router.get("/refresh", isAuthenticated, refReshToken, alluser);
 module.exports = router;
