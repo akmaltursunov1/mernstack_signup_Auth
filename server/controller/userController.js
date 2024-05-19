@@ -170,10 +170,41 @@ const refReshToken = (req, res, next) => {
   });
 };
 
+//LOG OUT USER
+const logout = (req, res, next) => {
+  res.clearCookie("token");
+  res.status(200).json({
+    success: true,
+    message: "Logged out",
+  });
+};
+
+// // USESR PROFILE
+// const userProfile = async (req, res, next) => {
+//   const user = await User.findById(req.user.id);
+//   res.status(200).json({
+//     sucess: true,
+//     user,
+//   });
+// };
+
+// const singleUser = async (req, res, next) => {
+//   try {
+//     const user = await User.findById(req.params.id);
+//     res.status(200).json({
+//       sucess: true,
+//       user,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
 module.exports = {
   registerUser,
   loginController,
   alluser,
   refReshToken,
   oneUser,
+  logout,
 };
