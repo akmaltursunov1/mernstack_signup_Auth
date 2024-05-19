@@ -115,6 +115,30 @@ const alluser = async (req, res) => {
   }
 };
 
+const oneUser = async (req, res) => {
+  try {
+    const userOne = await userModel.findById(req.params.id).select("-password");
+    if (!userOne) {
+      return res.status(401).send({
+        success: false,
+        message: "bu odam yoq",
+      });
+    }
+    res.status(200).send({
+      success: true,
+      message: "user one ",
+      userOne,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "userOne api dan xatolik",
+      error,
+    });
+  }
+};
+
 const refReshToken = (req, res, next) => {
   const prevToken = req.cookies.token;
   // console.log("prevtoken eski token" + "              " + prevToken);
@@ -146,4 +170,10 @@ const refReshToken = (req, res, next) => {
   });
 };
 
-module.exports = { registerUser, loginController, alluser, refReshToken };
+module.exports = {
+  registerUser,
+  loginController,
+  alluser,
+  refReshToken,
+  oneUser,
+};
