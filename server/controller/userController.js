@@ -72,7 +72,7 @@ const loginController = async (req, res) => {
     // console.log(token);
     res.cookie("token", token, {
       httpOnly: true,
-      expires: new Date(Date.now() + 1000 * 90),
+      expires: new Date(Date.now() + 1000 * 90 * 90),
     });
 
     res.status(200).send({
