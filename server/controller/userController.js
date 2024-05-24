@@ -180,13 +180,13 @@ const logout = (req, res, next) => {
 };
 
 // // USESR PROFILE
-// const userProfile = async (req, res, next) => {
-//   const user = await User.findById(req.user.id);
-//   res.status(200).json({
-//     sucess: true,
-//     user,
-//   });
-// };
+const userProfile = async (req, res, next) => {
+  const user = await userModel.findById(req.user.id);
+  res.status(200).json({
+    sucess: true,
+    user,
+  });
+};
 
 // const singleUser = async (req, res, next) => {
 //   try {
@@ -207,4 +207,5 @@ module.exports = {
   refReshToken,
   oneUser,
   logout,
+  userProfile,
 };
